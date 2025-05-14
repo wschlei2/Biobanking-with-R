@@ -1,7 +1,101 @@
-echo "# Biobanking-with-R" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/wschlei2/Biobanking-with-R.git
-git push -u origin main
+This is all the code that will be covered during the course of the workshop.  This can either be available as a handout or download.  
+
+# Load a package
+# NOTE: If you have already installed dplyr, you can skip the first step.  
+install.packages("dplyr")
+
+library(_____)  # <- Fill in the blank
+
+#############
+# Create a basic data frame
+df <- data.frame(
+  name = c("Alice", "Bob", "Carol"),
+  score = c(95, 88, 76)
+)
+
+#############
+# View first few rows
+head(_____)  # <- Fill in the blank
+
+#############
+# Display structure
+str(_____)   # <- Fill in the blank
+
+#############
+library(sqldf)
+
+# Filter cars with mpg > 25
+result <- sqldf("SELECT * FROM mtcars WHERE mpg > _____")  # <- Fill in the blank
+
+print(result)
+
+#############
+# Group by gear and compute average horsepower
+agg <- sqldf("SELECT gear, AVG(hp) AS avg_hp FROM mtcars GROUP BY _____")  # <- Fill in the blank
+print(agg)
+
+#############
+library(survival)
+data(lung)
+
+
+#############
+# Surv() combines time and event
+surv_obj <- Surv(time = lung$time, event = lung$status)
+
+#############
+# Fit Kaplan-Meier estimator by sex
+fit <- survfit(surv_obj ~ _____, data = lung)  # <- Fill in the blank
+
+#############
+summary(fit)
+
+#############
+# Stratify by ECOG score (performance status)
+tmp <- survfit(surv_obj ~ ph.ecog, data = lung)
+summary(tmp)
+
+#############
+# Filter lung dataset
+lung_males <- sqldf("SELECT * FROM lung WHERE sex = _____")  # <- Fill in the blank
+
+#############
+# Fit model within males by ECOG
+fit_male <- survfit(Surv(time, status) ~ ph.ecog, data = lung_males)
+summary(fit_male)
+
+#############
+library(survminer)
+ggsurvplot(
+  fit,
+  data = lung,
+  pval = TRUE,
+  conf.int = TRUE,
+  risk.table = TRUE,
+  ggtheme = theme_minimal(),
+  title = "Survival by _____"
+)
+
+#############
+ggsurvplot(
+  survfit(Surv(time, status) ~ ph.ecog, data = lung),
+  data = lung,
+  pval = TRUE,
+  conf.int = TRUE,
+  risk.table = TRUE,
+  ggtheme = theme_minimal(),
+  title = "Survival by _____"
+)
+
+#############
+subset_data <- sqldf("SELECT * FROM lung WHERE `ph.ecog` IN (0,1)")
+temp_fit <- survfit(Surv(time, status) ~ ph.ecog, data = subset_data)
+ggsurvplot(
+  temp_fit,
+  data = subset_data,
+  pval = TRUE,
+  conf.int = TRUE,
+  risk.table = TRUE,
+  ggtheme = theme_minimal(),
+  title = "Survival for ph.ecog 0 vs 1"
+)
